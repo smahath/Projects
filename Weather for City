@@ -1,0 +1,12 @@
+import requests
+
+api_address = 'http://api.openweathermap.org/data/2.5/weather?appid=176f468757b66c2104bb8cbefa814d3a&q='
+city = input("Enter your City :")
+
+url = api_address + city
+
+json_data = requests.get(url).json()
+
+
+formatted_data = json_data['weather'][0]['description']
+print(formatted_data)

@@ -1,0 +1,27 @@
+import requests
+
+#user input data
+city = input('Enter your City: ')
+
+#api with api key
+url = 'http://api.openweathermap.org/data/2.5/weather?q=()&APPID=176f468757b66c2104bb8cbefa814d3a&units=metric'.format(city)
+
+
+#http request from the website to gather information
+res = requests.get(url)
+
+data = res.json()
+
+temp = data['main']['temp']
+wind_speed = data['wind']['speed']
+
+latitude = data['coord']['lat']
+longitude = data['coord']['lon']
+
+description = data['weather'][0]['description']
+
+print('Temperature : {} degree fahrenheit'.format(temp))
+print('Wind Speed : {} m/s'.format(wind_speed))
+print('Latitude : {}'.format(latitude))
+print('Longitude : {}'.format(longitude))
+print('description : {}'.format(description))
