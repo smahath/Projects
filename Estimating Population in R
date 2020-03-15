@@ -22,10 +22,3 @@ summary(regr)
 years_df = data.frame(Year = c(2020:2025))
 
 predict(regr, newdata = years_df)
-EnableCodeIndexing: Yes
-UseSpacesForTab: Yes
-NumSpacesForTab: 2
-Encoding: UTF-8
-
-RnwWeave: Sweave
-LaTeX: pdfLaTeX
