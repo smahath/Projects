@@ -2,6 +2,7 @@
 "Purpose is to update on the Confluence Software Dependencies List"
 "Input = package.json from Desktop"
 "Output = package.json.md saves to Desktop"
+"Need to remove git+ and git:// from beginning of urls"
 
 import json
 import sys
