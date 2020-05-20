@@ -1,0 +1,89 @@
+"Creates Markdown file from JSON package in Desktop"
+"Purpose is to update on the Confluence Software Dependencies List"
+"Input = package.json from Desktop"
+"Output = package.json.md saves to Desktop"
+
+import json
+import sys
+from multiprocessing.pool import ThreadPool
+import urllib.request
+from tqdm import tqdm as progress
+
+URL_BASE = 'https://registry.npmjs.org/'
+# filename = 'C:/Users/15404/Desktop/package.json'
+filename = 'package.json'
+
+
+def get_package(name): 
+    """
+    Get back package info from website
+    """
+    url = URL_BASE + name
+    response = urllib.request.urlopen(url)
+    data = json.loads(response.read())
+    return data
+
+
+def get_full_info(name):
+    """
+    Get's complete package info from npm registry and
+    returns the required fields
+    """
+    info = get_package(name)
+    license = info.get('license', 'NONE')
+    repo = info.get('repository', "NONE")
+    if isinstance(repo, dict):
+        repo = repo.get('url', 'NONE')
+    return {
+        'name': name,
+        'license': license,
+        'repository': repo
+    }
+
+
+def update_dict_with_license_and_repo(packages):
+    """
+    Updates the supplied dictionary
+    """
+    results = ThreadPool(20).imap_unordered(get_full_info, packages)
+    for res in progress(results, total=len(packages)):
+        version = packages[res['name']]
+        packages[res['name']] = res
+        packages[res['name']]['version'] = version
+
+
+def add_table(fileobj, packages):
+    fileobj.write('| Package name | Package version | License | Repository |\n')
+
+    for packagename, info in packages.items():
+        fileobj.write("| ")
+        # print(info)
+        for item in ('name', 'version', 'license', 'repository'):
+            fileobj.write(info[item] + " | ")
+        fileobj.write("\n")
+
+
+def write_packages_to_md_table(filename, packages, packages_dev):
+    with open(filename + ".md", "w") as file_out:
+        file_out.write('# Dependencies\n\n')
+        add_table(file_out, packages)
+        file_out.write('\n\n')
+        file_out.write('# Development Dependencies\n\n')
+        add_table(file_out, packages_dev)
+
+
+def process_file(filename):
+    with open(filename) as file_in:
+        data = json.load(file_in)
+
+    packages = data['dependencies']
+    packages_dev = data['devDependencies']
+
+    update_dict_with_license_and_repo(packages)
+    update_dict_with_license_and_repo(packages_dev)
+
+    write_packages_to_md_table(filename, packages, packages_dev)
+
+
+if __name__ == "__main__":
+    process_file(filename)
